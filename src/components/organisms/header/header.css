@@ -1,0 +1,17 @@
+.header {
+    margin-bottom: 15px;
+}
+
+.header__button {
+    width: 100%;
+    padding: 15px;
+    cursor: pointer;
+    background-color: antiquewhite;
+    text-transform: capitalize;
+    transition: background-color 0.2s;
+}
+
+.header__button.active, .header__button:hover {
+    background-color: burlywood;
+    font-weight: bold;
+}

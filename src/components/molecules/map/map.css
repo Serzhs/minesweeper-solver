@@ -1,0 +1,45 @@
+.map {
+    text-align: center;
+    padding: 25px 0;
+}
+
+.map__inner {
+    display: inline-block;
+}
+
+.map__line {
+    display: flex;
+}
+
+.map__col {
+    background-color: #B8B8B8;
+    border: 1px solid #DCDCDC;
+    width: 25px;
+    height: 25px;
+    position: relative;
+    transition: background-color 0.2s;
+}
+
+.map__col.opened {
+    background-color: #DCDCDC;
+}
+
+.map__col:hover {
+    cursor: pointer;
+}
+
+.map__col.flagged:before {
+    content: '⚐';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.map__col:not(.flagged):hover {
+    background-color: #DCDCDC;
+}
