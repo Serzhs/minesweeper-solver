@@ -18,6 +18,22 @@ const Game: FC<IProps> = ({mapSize, socket}) => {
   let mapArray: string[][]
 
   useEffect(() => {
+    socket.onmessage = ({data}): void => {
+      if (data === 'new: OK') {
+        socket.send('map')
+      } else if (data.includes('map:')) {
+        generateMap(data)
+      } else if (data === 'open: OK') {
+        socket.send('map')
+      } else if (data === 'open: You lose') {
+        setLost(true)
+      } else if (data.includes('You win')) {
+        setPassword(data.split('.')[1])
+      }
+    }
+  })
+
+  useEffect(() => {
     setPassword('')
     setLost(false)
     socket.send(`new ${mapSize}`)
@@ -44,20 +60,6 @@ const Game: FC<IProps> = ({mapSize, socket}) => {
       setFlaggedFields([...flaggedFields, coords])
     } else {
       setFlaggedFields([...flaggedFields.filter(item => item !== coords)])
-    }
-  }
-
-  socket.onmessage = ({data}): void => {
-    if (data === 'new: OK') {
-      socket.send('map')
-    } else if (data.includes('map:')) {
-      generateMap(data)
-    } else if (data === 'open: OK') {
-      socket.send('map')
-    } else if (data === 'open: You lose') {
-      setLost(true)
-    } else if (data.includes('You win')) {
-      setPassword(data.split('.')[1])
     }
   }
 

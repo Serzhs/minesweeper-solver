@@ -6,8 +6,7 @@ import './style/libs/reboot.css'
 import './style/libs/flexboxgrid.css'
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom"
 
-
-function App() {
+const App = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const socket = useRef(null);
 

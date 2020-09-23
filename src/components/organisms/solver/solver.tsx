@@ -27,6 +27,59 @@ const Solver: FC<Props> = ({mapSize, socket}) => {
   }
 
   useEffect(() => {
+    socket.onmessage = ({data}) => {
+      if (data === 'new: OK') {
+        // on new game reset all globals
+        map = [[]]
+        fieldsToOpen = []
+        sendToSocket('map')
+      } else if (data.includes('map:')) {
+
+        // no need to loop trough if we already have coords
+        if (fieldsToOpen.length) {
+          openNextCoords()
+          return
+        }
+
+        ({map, checkedCoords} = addMines(generateMap(data), checkedCoords, mapDimension))
+
+        let unopenedFields;
+        ({unopenedFields, fieldsToOpen} = checkAvailableFields(map, checkedCoords, mapDimension))
+
+        if (!fieldsToOpen.length) {
+
+          // start calculating only at end, for performance
+          if (whenFireStatisticCalculator > unopenedFields.length) {
+            const [x, y] = calculateOdds(map, checkedCoords, mapDimension)
+
+            if(x && y) {
+              sendToSocket(`open ${x} ${y}`)
+              return
+            }
+          }
+
+          const {x, y} = getRandomCoords(unopenedFields)
+          sendToSocket(`open ${x} ${y}`)
+
+        } else {
+          openNextCoords()
+        }
+
+      } else if (data === 'open: OK') {
+        sendToSocket('map')
+      } else if (data === 'open: You lose') {
+        sendToSocket(`new ${mapSize}`)
+      } else if (data.includes('You win')) {
+        console.log(data)
+        setLoading(false)
+        setPassword(data.split('.')[1])
+      } else {
+        console.log(data)
+      }
+    }
+  })
+
+  useEffect(() => {
     setLoading(true)
     setPassword('')
     sendToSocket(`new ${mapSize}`)
@@ -56,56 +109,6 @@ const Solver: FC<Props> = ({mapSize, socket}) => {
     return unopenedFields[random]
   }
 
-  socket.onmessage = ({data}) => {
-    if (data === 'new: OK') {
-      // on new game reset all globals
-      map = [[]]
-      fieldsToOpen = []
-      sendToSocket('map')
-    } else if (data.includes('map:')) {
-
-      // no need to loop trough if we already have coords
-      if (fieldsToOpen.length) {
-        openNextCoords()
-        return
-      }
-
-      ({map, checkedCoords} = addMines(generateMap(data), checkedCoords, mapDimension))
-
-      let unopenedFields;
-      ({unopenedFields, fieldsToOpen} = checkAvailableFields(map, checkedCoords, mapDimension))
-
-      if (!fieldsToOpen.length) {
-
-        // start calculating only at end, for performance
-        if (whenFireStatisticCalculator > unopenedFields.length) {
-          const [x, y] = calculateOdds(map, checkedCoords, mapDimension)
-
-          if(x && y) {
-            sendToSocket(`open ${x} ${y}`)
-            return
-          }
-        }
-
-        const {x, y} = getRandomCoords(unopenedFields)
-        sendToSocket(`open ${x} ${y}`)
-
-      } else {
-        openNextCoords()
-      }
-
-    } else if (data === 'open: OK') {
-      sendToSocket('map')
-    } else if (data === 'open: You lose') {
-      sendToSocket(`new ${mapSize}`)
-    } else if (data.includes('You win')) {
-      console.log(data)
-      setLoading(false)
-      setPassword(data.split('.')[1])
-    } else {
-      console.log(data)
-    }
-  }
   return (
     <section className="solver">
       <div className="container">
