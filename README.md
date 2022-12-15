@@ -1,4 +1,6 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Minesweeper solver with UI.
+
+Minesweeper socket url is broken so this is not usable, altrough the solving ui and algorithm is there 
 
 ## Available Scripts
 
